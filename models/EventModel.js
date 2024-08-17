@@ -32,18 +32,6 @@ const EventsSchema = new Schema({
       required: false,
     },
   ],
-  classes: [
-    {
-        className: {
-        type: String,
-        required: false,
-      },
-      classSizeLimit: {
-        type: String,
-        required: false,
-      },
-    },
-  ],
   attendees: {
     type: String,
     required: true,
