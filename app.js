@@ -3,9 +3,15 @@ const express = require("express");
 const UserRoutes = require("./routes/UserRoutes");
 const AdminRoutes = require("./routes/AdminRoutes");
 const connectDB = require("./util/db");
+const cors = require('cors');
 
 const app = express();
-
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
+  
 app.use(express.json());
 
 app.use("/", (req, res, next) => {
