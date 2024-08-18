@@ -38,10 +38,10 @@ const EventsSchema = new Schema({
   },
   feedbacks: [
     {
-    type: String,
-    required: false,
-  }
-]
+      type: String,
+      required: false,
+    },
+  ],
 });
 
 EventsSchema.pre("save", function (next) {
