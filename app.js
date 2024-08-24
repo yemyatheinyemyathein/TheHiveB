@@ -7,12 +7,10 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors({
-    origin: '*', // You can specify a specific origin here instead of '*' for security
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
-
-app.use(express.json());
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 
 app.use(express.json({ limit: '10mb' }));
