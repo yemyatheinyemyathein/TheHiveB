@@ -6,13 +6,11 @@ const connectDB = require("./util/db");
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
-
-// app.use(cors({
-//     origin: '*',
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization']
-//   }));
+app.use(cors({
+    origin: '*', // You can specify a specific origin here instead of '*' for security
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
 
 app.use(express.json());
 
@@ -26,7 +24,7 @@ app.use("/", (req, res, next) => {
 });
 
 app.use(UserRoutes);
-app.use('/admin',AdminRoutes);
+app.use('/admin', cors(corsOptions), AdminRoutes);
 
 connectDB().then(() => {
     app.listen(process.env.PORT, () => {

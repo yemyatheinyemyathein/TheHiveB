@@ -149,24 +149,3 @@ exports.postClass = async (req, res) => {
     });
   }
 };
-
-const uploadImage = async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No image file provided' });
-    }
-
-    const file = dataUri(req).content;
-
-    const result = await cloudinary.uploader.upload(file, {
-      folder: 'members', // Optional: specifies folder in Cloudinary
-    });
-
-    return res.status(200).json({ imageUrl: result.secure_url });
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    return res.status(500).json({ message: 'Image upload failed', error: error.message });
-  }
-};
-
-module.exports = { upload, uploadImage };
