@@ -2,12 +2,21 @@ const BlogModel = require("../models/BlogModel");
 const MemberModel = require("../models/MemberModel");
 const EventModel = require("../models/EventModel");
 const ClassModel = require("../models/ClassModel");
-const cloudinary = require("../cloudinaryConfig")
+
+const cloudinary = require('../cloudinaryConfig');
 const multer = require('multer');
+const DatauriParser = require('datauri/parser');
 const path = require('path');
 
+const parser = new DatauriParser();
+
+// Configure multer storage
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ storage }).single('image');
+
+// Function to convert buffer to data URI
+const dataUri = (req) => parser.format(path.extname(req.file.originalname).toString(), req.file.buffer);
+
 
 exports.postBlog = async (req, res) => {
   try {
@@ -50,6 +59,11 @@ exports.postBlog = async (req, res) => {
 exports.postMember = async (req, res) => {
   try {
     const { name, img, about, department, position, socialLinks } = req.body;
+
+    if (!name || !img || !about || !department || !position) {
+      return res.status(400).json({ message: 'All required fields must be provided' });
+    }
+
     const newMember = new MemberModel({
       name,
       img,
@@ -59,15 +73,16 @@ exports.postMember = async (req, res) => {
       socialLinks,
     });
 
-    const SavedMember = await newMember.save();
+    const savedMember = await newMember.save();
+
     res.status(201).json({
-      message: "Member Created Successfully",
-      member: SavedMember,
+      message: 'Member Created Successfully',
+      member: savedMember,
     });
   } catch (error) {
-    console.log("Error Posting Member :", error.message);
+    console.error('Error Posting Member:', error);
     res.status(500).json({
-      message: "Internal Sever Error",
+      message: 'Internal Server Error',
       error: error.message,
     });
   }
@@ -135,21 +150,23 @@ exports.postClass = async (req, res) => {
   }
 };
 
-
-exports.uploadImage = async (req, res) => {
+const uploadImage = async (req, res) => {
   try {
-    const result = await cloudinary.uploader.upload_stream(
-      { resource_type: 'image' },
-      (error, result) => {
-        if (error) {
-          return res.status(500).json({ message: 'Image upload failed', error });
-        }
-        res.status(200).json({ imageUrl: result.secure_url });
-      }
-    ).end(req.file.buffer);
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+
+    const file = dataUri(req).content;
+
+    const result = await cloudinary.uploader.upload(file, {
+      folder: 'members', // Optional: specifies folder in Cloudinary
+    });
+
+    return res.status(200).json({ imageUrl: result.secure_url });
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    console.error('Error uploading image:', error);
+    return res.status(500).json({ message: 'Image upload failed', error: error.message });
   }
 };
 
-module.exports.upload = upload.single('image');
+module.exports = { upload, uploadImage };
