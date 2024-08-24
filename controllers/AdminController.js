@@ -2,6 +2,12 @@ const BlogModel = require("../models/BlogModel");
 const MemberModel = require("../models/MemberModel");
 const EventModel = require("../models/EventModel");
 const ClassModel = require("../models/ClassModel");
+const cloudinary = require("../cloudinaryConfig")
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 exports.postBlog = async (req, res) => {
   try {
@@ -128,3 +134,22 @@ exports.postClass = async (req, res) => {
     });
   }
 };
+
+
+exports.uploadImage = async (req, res) => {
+  try {
+    const result = await cloudinary.uploader.upload_stream(
+      { resource_type: 'image' },
+      (error, result) => {
+        if (error) {
+          return res.status(500).json({ message: 'Image upload failed', error });
+        }
+        res.status(200).json({ imageUrl: result.secure_url });
+      }
+    ).end(req.file.buffer);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
+};
+
+module.exports.upload = upload.single('image');
